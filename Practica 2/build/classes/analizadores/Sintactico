@@ -1,0 +1,106 @@
+package analizadores; 
+import java_cup.runtime.*;
+
+parser code 
+{:
+    String ultima = "";
+    /**
+     * Método al que se llama automáticamente ante algún error sintactico.
+     **/ 
+    public void syntax_error(Symbol s){ 
+        System.out.println("Error Sintáctico en la Línea " + (s.left) +
+        " Columna "+s.right+ ". No se esperaba este componente: " +s.value+"."); 
+    } 
+
+    /**
+     * Método al que se llama automáticamente ante algún error sintáctico 
+     * en el que ya no es posible una recuperación de errores.
+     **/ 
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{ 
+        System.out.println("Error síntactico irrecuperable en la Línea " + 
+        (s.left)+ " Columna "+s.right+". Componente " + s.value + 
+        " no reconocido."); 
+    }  
+    
+    public void mostrar(String out) {
+        System.out.println(out);
+    }
+:} 
+
+terminal String PUNTO, UNO, CERO;
+
+non terminal ini1;
+non terminal listaA;
+non terminal listaB;
+non terminal deB;
+
+start with ini1; 
+
+/*
+
+S::= 
+    L PUNTO L {write(L1.val1 +"."+L2.Val2);}
+    | L {write(L1.val1);}
+;
+
+L ::= 
+    L B {
+            L.base = L1.base*2;
+            L.val1 = L1.val1*2+B.val;
+            L.val2 = L1.val2+B.val/L.base;
+        }
+    | B {
+            L.base = 2;
+            L.val1 = B.val;
+            L.val2 = B.val/2;
+        }
+;
+
+B ::=
+    CERO { B.val = 0; }
+    | UNO { B.val = 1; }
+
+*/
+
+ini1 ::=
+        listaA:L1 PUNTO listaB:L2     {: mostrar("Salida: " + L1.val + "." + L2.val);  :}
+    |   listaA:L {: mostrar("Salida: " + L.val); :}
+    ;
+
+listaA ::=
+        listaA:L1 deB:B {:
+                            L1.val = L1.val * 2 + B.val;
+                            RESULT = L1;
+                        :}
+    |   deB:B           {:
+                            RESULT = B;
+                        :}
+    ;
+
+listaB ::=
+        listaB:L1 deB:B {:
+                            L1.base = L1.base * 2;
+                            L1.val = L1.val + B.val / L1.base;
+                            RESULT = L1;
+                        :}
+    |   deB:B           {:
+                            B.base = 2;
+                            B.val = B.val / 2;
+                            RESULT = B;
+                        :}
+    ;
+
+deB ::=
+        CERO            {:
+                            Nodo nodo = new Nodo();
+                            nodo.val = 0;
+                            RESULT = nodo;
+                        :}
+    |   UNO             {:
+                            Nodo nodo = new Nodo();
+                            nodo.val = 1;
+                            RESULT = nodo;
+                        :}
+    ;
+                            
+    
